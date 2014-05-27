@@ -29,6 +29,7 @@ class Lesti_Fpc_Model_Observer
     protected $_html = array();
     protected $_placeholder = array();
     protected $_cache_tags = array();
+    protected $_lifetime = null;
 
     /**
      * @param $observer
@@ -152,7 +153,11 @@ class Lesti_Fpc_Model_Observer
                 }
                 $this->_cache_tags = array_merge(Mage::helper('fpc')->getCacheTags(), $this->_cache_tags);
                 $object = array('body' => $body, 'time' => time());
-                $fpc->save(serialize($object), $key, $this->_cache_tags);
+                $lifetime = null;
+                if ($this->_lifetime > 0) {
+                    $lifetime = $this->_lifetime;
+                }
+                $fpc->save(serialize($object), $key, $this->_cache_tags, $lifetime);
                 $this->_cached = true;
                 $body = str_replace($this->_placeholder, $this->_html, $body);
                 $observer->getEvent()->getResponse()->setBody($body);
@@ -178,6 +183,13 @@ class Lesti_Fpc_Model_Observer
             $cacheableActions = Mage::helper('fpc')->getCacheableActions();
             if (in_array($fullActionName, $cacheableActions)) {
                 $this->_cache_tags = array_merge(Mage::helper('fpc/block')->getCacheTags($block), $this->_cache_tags);
+                if (($lifetime = $block->getFpcCacheLifetime()) > 0) {
+                    if (is_null($this->_lifetime)) {
+                        $this->_lifetime = $lifetime;
+                    } else {
+                        $this->_lifetime = min($this->_lifetime, $lifetime);
+                    }
+                }
                 if (in_array($blockName, $dynamicBlocks)) {
                     $placeholder = Mage::helper('fpc/block')->getPlaceholderHtml($blockName);
                     $html = $observer->getTransport()->getHtml();
@@ -215,12 +227,12 @@ class Lesti_Fpc_Model_Observer
             $productIds = $entities['product_ids'];
 
             $coreSession = Mage::getSingleton('core/session');
-            
+
             $currentProductIds = $coreSession->getData(self::PRODUCT_IDS_MASS_ACTION_KEY);
             if (!empty($currentProductIds)) {
                 $productIds = array_merge($currentProductIds, $productIds);
             }
-            
+
             $coreSession->setData(self::PRODUCT_IDS_MASS_ACTION_KEY, $productIds);
         }
     }
