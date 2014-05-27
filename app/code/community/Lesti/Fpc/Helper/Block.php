@@ -127,6 +127,9 @@ class Lesti_Fpc_Helper_Block extends Mage_Core_Helper_Abstract
             $cacheTags[] = sha1('cmsblock');
             $cacheTags[] = sha1('cmsblock_' . $block->getBlockId());
         }
+        if ($block->getFpcCacheTags()) {
+            $cacheTags = array_merge($cacheTags, $block->getFpcCacheTags());
+        }
         return $cacheTags;
     }
 
