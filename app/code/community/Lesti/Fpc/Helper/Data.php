@@ -216,7 +216,13 @@ class Lesti_Fpc_Helper_Data extends Mage_Core_Helper_Abstract
                 }
                 break;
         }
-        Mage::dispatchEvent('fpc_helper_collect_cache_tags', array('chace_tags' => $cacheTags));
+        $transport = new Varien_Object(array('cache_tags' => $cacheTags));
+        Mage::dispatchEvent('fpc_helper_collect_cache_tags', array(
+            'chace_tags'       => $cacheTags,
+            'transport'        => $transport,
+            'full_action_name' => $fullActionName,
+        ));
+        $cacheTags = $transport->getCacheTags();
         return $cacheTags;
     }
 
