@@ -101,6 +101,7 @@ class Lesti_Fpc_Model_Observer
                     Mage::app()->getResponse()->setHeader('X-Lesti_FPC-Cache', 'HIT');
                 }
                 Mage::app()->getResponse()->setBody($body);
+                Mage::dispatchEvent('fpc_send_response_before', array('fpc' => $fpc, 'action' => $observer->getEvent()->getAction()));
                 Mage::app()->getResponse()->sendResponse();
                 exit;
             }
