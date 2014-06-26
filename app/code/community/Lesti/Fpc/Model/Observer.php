@@ -95,10 +95,14 @@ class Lesti_Fpc_Model_Observer
                 if(Mage::getStoreConfig(self::SHOW_AGE_XML_PATH)) {
                     Mage::app()->getResponse()->setHeader('Age', time() - $object['time']);
                 }
-
                 if(Mage::getConfig()->getNode('global/fpc/debug') == 'true'
                     || Mage::getConfig()->getNode('global/fpc/debug') == '1'){
                     Mage::app()->getResponse()->setHeader('X-Lesti_FPC-Cache', 'HIT');
+                    Mage::log(sprintf('Cache HIT for action %s, key: %s, url: %s',
+                        Mage::helper('fpc')->getFullActionName(),
+                        $key,
+                        Mage::app()->getRequest()->getServer('REQUEST_URI')
+                    ), Zend_Log::DEBUG, 'fpc.log');
                 }
                 Mage::app()->getResponse()->setBody($body);
                 Mage::dispatchEvent('fpc_send_response_before', array('fpc' => $fpc, 'action' => $observer->getEvent()->getAction()));
@@ -153,10 +157,23 @@ class Lesti_Fpc_Model_Observer
                     $this->_html[] = $sid;
                 }
                 $this->_cache_tags = array_merge(Mage::helper('fpc')->getCacheTags(), $this->_cache_tags);
-                $object = array('body' => $body, 'time' => time());
+                $object = array(
+                    'action' => Mage::helper('fpc')->getFullActionName(),
+                    'uri'    => Mage::app()->getRequest()->getServer('REQUEST_URI'),
+                    'body'   => $body,
+                    'time'   => time()
+                );
                 $lifetime = null;
                 if ($this->_lifetime > 0) {
                     $lifetime = $this->_lifetime;
+                }
+                if(Mage::getConfig()->getNode('global/fpc/debug') == 'true'
+                    || Mage::getConfig()->getNode('global/fpc/debug') == '1'){
+                    Mage::log(sprintf('Saved action %s, key: %s, url: %s',
+                        Mage::helper('fpc')->getFullActionName(),
+                        $key,
+                        Mage::app()->getRequest()->getServer('REQUEST_URI')
+                    ), Zend_Log::DEBUG, 'fpc.log');
                 }
                 $fpc->save(serialize($object), $key, $this->_cache_tags, $lifetime);
                 $this->_cached = true;
