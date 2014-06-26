@@ -24,6 +24,8 @@ class Lesti_Fpc_Helper_Data extends Mage_Core_Helper_Abstract
     const XML_PATH_CUSTOMER_GROUPS = 'system/fpc/customer_groups';
     const XML_PATH_REFRESH_ACTIONS = 'system/fpc/refresh_actions';
     const XML_PATH_MISS_URI_PARAMS = 'system/fpc/miss_uri_params';
+    const XML_PATH_CATEGORY_LIMIT_QUERY_PARAMS = 'system/fpc/category_limit_query_params';
+    const XML_PATH_CATEGORY_USE_QUERY_PARAMS = 'system/fpc/category_use_query_params';
     const LAYOUT_ELEMENT_CLASS = 'Mage_Core_Model_Layout_Element';
 
     const REGISTRY_KEY_PARAMS = 'fpc_params';
@@ -66,9 +68,19 @@ class Lesti_Fpc_Helper_Data extends Mage_Core_Helper_Abstract
                 'port' => $request->getServer('SERVER_PORT'),
                 'full_action_name' => $this->getFullActionName());
             $uriParams = $this->_getUriParams();
-            foreach ($uriParams as $uriParam) {
-                if ($data = $request->getParam($uriParam)) {
-                    $params['uri_' . $uriParam] = $data;
+            $fullActionName = $this->getFullActionName();
+            if ($fullActionName == 'catalog_category_view'
+                && Mage::getStoreConfigFlag(self::XML_PATH_CATEGORY_USE_QUERY_PARAMS))
+            {
+                // use all params to compose cache key if configured
+                foreach ($request->getParams() as $key => $value) {
+                    $params['uri_' . $key] = $value;
+                }
+            } else {
+                foreach ($uriParams as $uriParam) {
+                    if ($data = $request->getParam($uriParam)) {
+                        $params['uri_' . $uriParam] = $data;
+                    }
                 }
             }
             // store
@@ -129,6 +141,12 @@ class Lesti_Fpc_Helper_Data extends Mage_Core_Helper_Abstract
         $missParams = $this->_getMissUriParams();
         if ($request->getMethod() != 'GET') {
             return false;
+        }
+        if ($this->getFullActionName() == 'catalog_category_view') {
+            $limitQueryParams = Mage::getStoreConfig(self::XML_PATH_CATEGORY_LIMIT_QUERY_PARAMS);
+            if ($limitQueryParams != -1 && count($request->getQuery()) > $limitQueryParams) {
+                return false;
+            }
         }
         foreach ($missParams as $missParam) {
             $pair = array_map('trim', explode('=', $missParam));

@@ -252,6 +252,8 @@ display_mode]]></session_params>
                 <customer_groups>0</customer_groups>
                 <use_recently_viewed_products>0</use_recently_viewed_products>
                 <show_age>1</show_age>
+                <category_limit_query_params>1</category_limit_query_params>
+                <category_use_query_params>1</category_use_query_params>
             </fpc>
         </system>
     </default>

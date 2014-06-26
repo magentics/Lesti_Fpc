@@ -118,6 +118,26 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </show_age>
+                        <category_limit_query_params>
+                            <label>Limit Category Parameters</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>Only cache pages with this number of query parameters on category view page (used to limit layered navigation caching)</comment>
+                            <source_model>fpc/source_limitparams</source_model>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </category_limit_query_params>
+                        <category_use_query_params>
+                            <label>Use Category Parameters</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>Use query parameters when composing the cache key for a category view page</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </category_use_query_params>
                     </fields>
                 </fpc>
             </groups>
