@@ -24,8 +24,8 @@ class Lesti_Fpc_Helper_Data extends Mage_Core_Helper_Abstract
     const XML_PATH_CUSTOMER_GROUPS = 'system/fpc/customer_groups';
     const XML_PATH_REFRESH_ACTIONS = 'system/fpc/refresh_actions';
     const XML_PATH_MISS_URI_PARAMS = 'system/fpc/miss_uri_params';
-    const XML_PATH_CATEGORY_LIMIT_QUERY_PARAMS = 'system/fpc/category_limit_query_params';
-    const XML_PATH_CATEGORY_USE_QUERY_PARAMS = 'system/fpc/category_use_query_params';
+    const XML_PATH_CATEGORY_LIMIT_PARAMS = 'system/fpc/category_limit_params';
+    const XML_PATH_CATEGORY_USE_PARAMS = 'system/fpc/category_use_params';
     const LAYOUT_ELEMENT_CLASS = 'Mage_Core_Model_Layout_Element';
 
     const REGISTRY_KEY_PARAMS = 'fpc_params';
@@ -70,7 +70,7 @@ class Lesti_Fpc_Helper_Data extends Mage_Core_Helper_Abstract
             $uriParams = $this->_getUriParams();
             $fullActionName = $this->getFullActionName();
             if ($fullActionName == 'catalog_category_view'
-                && Mage::getStoreConfigFlag(self::XML_PATH_CATEGORY_USE_QUERY_PARAMS))
+                && Mage::getStoreConfigFlag(self::XML_PATH_CATEGORY_USE_PARAMS))
             {
                 // use all params to compose cache key if configured
                 foreach ($request->getParams() as $key => $value) {
@@ -143,8 +143,9 @@ class Lesti_Fpc_Helper_Data extends Mage_Core_Helper_Abstract
             return false;
         }
         if ($this->getFullActionName() == 'catalog_category_view') {
-            $limitQueryParams = Mage::getStoreConfig(self::XML_PATH_CATEGORY_LIMIT_QUERY_PARAMS);
-            if ($limitQueryParams != -1 && count($request->getQuery()) > $limitQueryParams) {
+            $limitParams = Mage::getStoreConfig(self::XML_PATH_CATEGORY_LIMIT_PARAMS);
+            // one parameter is reserved for the category id: 'id', so use params count - 1
+            if ($limitParams != -1 && (count($request->getParam()) - 1 > $limitParams)) {
                 return false;
             }
         }
